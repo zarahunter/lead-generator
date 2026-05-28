@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import ws from "ws";
 import type { Lead } from "./schema.js";
 
 let client: SupabaseClient | null = null;
@@ -8,7 +9,14 @@ function getClient(): SupabaseClient {
     const url = process.env.SUPABASE_URL;
     const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (!url || !key) throw new Error("SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is not set");
-    client = createClient(url, key, { auth: { persistSession: false } });
+    // Trigger.dev's cloud runtime is Node 21 which lacks native WebSocket.
+    // @supabase/supabase-js eagerly initializes a Realtime client in its
+    // constructor, so we must provide a `ws` polyfill even though this task
+    // only does CRUD. Remove if/when Trigger.dev moves to Node 22+.
+    client = createClient(url, key, {
+      auth: { persistSession: false },
+      realtime: { transport: ws as unknown as never },
+    });
   }
   return client;
 }

@@ -114,6 +114,10 @@ The task's runtime env vars (`FIRECRAWL_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERV
 
 Implication: to deploy, the deploying machine must have those values in `process.env` (loaded from `equipment/trigger/.env` or the shell). The Trigger.dev dashboard's "Environment Variables" page is not the source of truth — it is rewritten on every `trigger.dev deploy`.
 
+## Runtime quirk: ws polyfill for Supabase
+
+Trigger.dev's cloud runtime is Node 21, which lacks native WebSocket. `@supabase/supabase-js` eagerly initializes a Realtime client in its constructor (even when only used for CRUD), so the task imports the `ws` package and passes it as the realtime transport in [`equipment/trigger/src/lib/supabase.ts`](../equipment/trigger/src/lib/supabase.ts). Without this, every task attempt crashes immediately at `createClient(...)` with `Error: Node.js 21 detected without native WebSocket support.`. Remove the polyfill when Trigger.dev moves to Node 22+.
+
 ## Verification
 
 After any change to this workflow:
