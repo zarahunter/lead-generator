@@ -108,6 +108,12 @@ Next.js middleware (`middleware.ts`) checks an `APP_PASSWORD` cookie before any 
 
 **Retry policy:** all transient-error retries are delegated to Trigger.dev (see `retries` in `trigger.config.ts`). No hand-rolled backoff loops inside task helpers.
 
+## Deploy-time env var sync
+
+The task's runtime env vars (`FIRECRAWL_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`) are forwarded from a **local `.env` file** in `/equipment/trigger/` to the Trigger.dev prod environment at deploy time, via the `syncEnvVars` build extension in [`trigger.config.ts`](../equipment/trigger/trigger.config.ts). See `.env.example` for the required keys.
+
+Implication: to deploy, the deploying machine must have those values in `process.env` (loaded from `equipment/trigger/.env` or the shell). The Trigger.dev dashboard's "Environment Variables" page is not the source of truth — it is rewritten on every `trigger.dev deploy`.
+
 ## Verification
 
 After any change to this workflow:

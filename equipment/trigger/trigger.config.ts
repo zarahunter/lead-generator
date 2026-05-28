@@ -1,4 +1,5 @@
 import { defineConfig } from "@trigger.dev/sdk";
+import { syncEnvVars } from "@trigger.dev/build/extensions/core";
 
 export default defineConfig({
   project: "proj_fofvgafgxnhqwxhnkapw",
@@ -16,4 +17,14 @@ export default defineConfig({
     },
   },
   dirs: ["./trigger"],
+  build: {
+    extensions: [
+      syncEnvVars(async () => [
+        { name: "FIRECRAWL_API_KEY", value: process.env.FIRECRAWL_API_KEY ?? "" },
+        { name: "SUPABASE_URL", value: process.env.SUPABASE_URL ?? "" },
+        { name: "SUPABASE_SERVICE_ROLE_KEY", value: process.env.SUPABASE_SERVICE_ROLE_KEY ?? "" },
+        { name: "ANTHROPIC_API_KEY", value: process.env.ANTHROPIC_API_KEY ?? "" },
+      ]),
+    ],
+  },
 });
